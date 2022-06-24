@@ -162,6 +162,17 @@ type MemStats struct {
 	// are not considered part of the heap. A span can change
 	// between heap and stack memory; it is never used for both
 	// simultaneously.
+	//ヒープメモリの統計。
+	//
+	//ヒープ統計の解釈には、Goがどのようにメモリを組織化するかについての知識が必要です。Goはヒープの仮想アドレス空間を「スパン」に分割します。スパンとは、8K以上の連続したメモリ領域のことです。スパンは、3つの状態のうちの1つになります。
+	//
+	//アイドル」スパンには、オブジェクトや他のデータは含まれていません。アイドル」スパンには、オブジェクトやその他のデータは含まれません。アイドルスパンをバックアップしている物理メモリは、OSに解放されるか（ただし、仮想アドレス空間は解放されません）、「使用中」または「スタック」スパンに変換される可能性があります。
+	//
+	// 使用中」スパンには、少なくとも1つのヒープオブジェクトが含まれ、さらにヒープオブジェクトを割り当てるための空き領域がある場合があります。
+	//
+	//スタック」スパンは、ゴルーティンのスタックに使用される。スタックスパンは、ヒープの一部とはみなされない。スパンはヒープメモリとスタックメモリの間で変更することができますが、同時に両方に使用されることはありません。
+	//
+	//www.DeepL.com/Translator（無料版）で翻訳しました。
 
 	// HeapAlloc is bytes of allocated heap objects.
 	//
@@ -174,6 +185,10 @@ type MemStats struct {
 	// occur simultaneously, and as a result HeapAlloc tends to
 	// change smoothly (in contrast with the sawtooth that is
 	// typical of stop-the-world garbage collectors).
+	//
+	// HeapAllocは、割り当てられたヒープ・オブジェクトのバイト数です。
+	//
+	// "割り当てられた "ヒープオブジェクトには、到達可能なすべてのオブジェクトと、ガベージコレクタがまだ解放していない到達不能なオブジェクトが含まれます。具体的には、ヒープオブジェクトが割り当てられるとHeapAllocは増加し、ヒープが掃引され到達不可能なオブジェクトが解放されると減少します。掃引はGCサイクルの間にインクリメンタルに行われるので、この2つのプロセスは同時に発生し、その結果、HeapAllocは（Stop-the-Worldガベージコレクタの典型である鋸歯状とは対照的に）滑らかに変化する傾向があります。
 	HeapAlloc uint64
 
 	// HeapSys is bytes of heap memory obtained from the OS.
@@ -187,6 +202,12 @@ type MemStats struct {
 	// for a measure of the latter).
 	//
 	// HeapSys estimates the largest size the heap has had.
+	//
+	// HeapSysは、OSから取得したヒープメモリのバイト数です。
+	//
+	// HeapSysは、ヒープに予約されている仮想アドレス空間の量を測定します。これには、物理メモリは消費しないが小さくなりがちな予約済み未使用の仮想アドレス空間と、未使用になって物理メモリがOSに戻された仮想アドレス空間（後者の指標はHeapReleasedを参照）が含まれます。
+	//
+	// HeapSysは、ヒープが持つ最大のサイズを推定します。
 	HeapSys uint64
 
 	// HeapIdle is bytes in idle (unused) spans.
@@ -491,6 +512,7 @@ func readGCStats(pauses *[]uint64) {
 
 // readGCStats_m must be called on the system stack because it acquires the heap
 // lock. See mheap for details.
+//
 //go:systemstack
 func readGCStats_m(pauses *[]uint64) {
 	p := *pauses
@@ -670,6 +692,7 @@ type sysMemStat uint64
 // load atomically reads the value of the stat.
 //
 // Must be nosplit as it is called in runtime initialization, e.g. newosproc0.
+//
 //go:nosplit
 func (s *sysMemStat) load() uint64 {
 	return atomic.Load64((*uint64)(s))
@@ -678,6 +701,7 @@ func (s *sysMemStat) load() uint64 {
 // add atomically adds the sysMemStat by n.
 //
 // Must be nosplit as it is called in runtime initialization, e.g. newosproc0.
+//
 //go:nosplit
 func (s *sysMemStat) add(n int64) {
 	if s == nil {

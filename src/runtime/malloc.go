@@ -485,6 +485,7 @@ func mallocinit() {
 
 	// Initialize the heap.
 	mheap_.init()
+	// mcache0に全て空のmspanで構成されたmcacheのポインタを返す
 	mcache0 = allocmcache()
 	lockInit(&gcBitsArenas.lock, lockRankGcBitsArenas)
 	lockInit(&proflock, lockRankProf)
@@ -1400,6 +1401,7 @@ func persistentalloc(size, align uintptr, sysStat *sysMemStat) unsafe.Pointer {
 
 // Must run on system stack because stack growth can (re)invoke it.
 // See issue 9174.
+//
 //go:systemstack
 func persistentalloc1(size, align uintptr, sysStat *sysMemStat) *notInHeap {
 	const (
@@ -1469,6 +1471,7 @@ func persistentalloc1(size, align uintptr, sysStat *sysMemStat) *notInHeap {
 // inPersistentAlloc reports whether p points to memory allocated by
 // persistentalloc. This must be nosplit because it is called by the
 // cgo checker code, which is called by the write barrier code.
+//
 //go:nosplit
 func inPersistentAlloc(p uintptr) bool {
 	chunk := atomic.Loaduintptr((*uintptr)(unsafe.Pointer(&persistentChunks)))
