@@ -42,7 +42,7 @@ func allocate(size int) []byte {
 }
 
 func main() {
-	const dur = 5 * 60 * 1e9
+	const dur = 11 * 60 * 1e9
 	const base int = 1 << 10
 	start := time.Now().UnixNano()
 	var buf []byte
