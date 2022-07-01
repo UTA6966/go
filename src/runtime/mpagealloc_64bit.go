@@ -41,7 +41,8 @@ var levelBits = [summaryLevels]uint{
 //
 // With levelShift, one can compute the index of the summary at level l related to a
 // pointer p by doing:
-//   p >> levelShift[l]
+//
+//	p >> levelShift[l]
 var levelShift = [summaryLevels]uint{
 	heapAddrBits - summaryL0Bits,
 	heapAddrBits - summaryL0Bits - 1*summaryLevelBits,
@@ -94,6 +95,12 @@ func (p *pageAlloc) sysInit() {
 // Both must be aligned to pallocChunkBytes.
 //
 // The caller must update p.start and p.end after calling sysGrow.
+//
+// sysGrow はページアロケータのためのヒープ成長に関するアーキテクチャ依存の操作、 例えばサマリーのための新しいメモリのマッピングを行います。また、[.summary.base]内のスライスの長さも更新します。
+//
+// base は新しく追加されるヒープメモリのベース、limit は新しく追加されるヒープメモリの終端を過ぎた最初のアドレスです。両方とも pallocChunkBytes にアラインされていなければなりません。
+//
+// 呼び出し側は、sysGrowを呼び出した後、p.startとp.endを更新しなければなりません。
 func (p *pageAlloc) sysGrow(base, limit uintptr) {
 	if base%pallocChunkBytes != 0 || limit%pallocChunkBytes != 0 {
 		print("runtime: base = ", hex(base), ", limit = ", hex(limit), "\n")

@@ -1,6 +1,8 @@
-package bench
+package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func BenchmarkStringAllocation(b *testing.B) {
 	for i := 0; i < b.N; i++ {
